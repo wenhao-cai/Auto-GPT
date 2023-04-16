@@ -15,16 +15,24 @@ def get_prompt() -> str:
 
     # Add constraints to the PromptGenerator object
     prompt_generator.add_constraint(
-        "~4000 word limit for short term memory. Your short term memory is short, so"
-        " immediately save important information to files."
+        "Adhere to the provided list of commands and use them exclusively."
     )
     prompt_generator.add_constraint(
-        "If you are unsure how you previously did something or want to recall past"
-        " events, thinking about similar events will help you remember."
+        "Ensure you use the correct arguments for each command."
     )
-    prompt_generator.add_constraint("No user assistance")
+    prompt_generator.add_constraint(
+        "Use your short-term memory wisely, as you are limited to ~4000 words.")
     prompt_generator.add_constraint(
         'Exclusively use the commands listed in double quotes e.g. "command name"'
+    )
+    prompt_generator.add_constraint(
+        'Reflect on past decisions and strategies to refine your approach.'
+    )
+    prompt_generator.add_constraint(
+        'Prioritize efficiency and smart decision-making.'
+    )
+    prompt_generator.add_constraint(
+        'your strengths include efficient execution of tasks and effective delegation of simpler tasks to GPT powered agents. Use these strengths to navigate the constraints and work towards the goal'
     )
 
     # Define the command list

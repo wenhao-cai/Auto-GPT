@@ -122,13 +122,12 @@ class PromptGenerator:
         """
         formatted_response_format = json.dumps(self.response_format, indent=4)
         return (
-            f"Constraints:\n{self._generate_numbered_list(self.constraints)}\n\n"
+            f"When executing tasks, focus on the following:\n{self._generate_numbered_list(self.constraints)}\n\n"
             "Commands:\n"
             f"{self._generate_numbered_list(self.commands, item_type='command')}\n\n"
             f"Resources:\n{self._generate_numbered_list(self.resources)}\n\n"
             "Performance Evaluation:\n"
             f"{self._generate_numbered_list(self.performance_evaluation)}\n\n"
-            "You must respond in JSON format as described below. Ensure that your response strictly adheres to JSON format rules and can be parsed by Python's json.loads function \nResponse"
-            f" Format: \n{formatted_response_format} \nEnsure the response can be"
-            "parsed by Python json.loads"
+            "IMPORTANT: You must respond in JSON format as described below. Ensure that your response strictly adheres to JSON format rules and can be parsed by Python's json.loads function \nResponse"
+            f" Format: \n{formatted_response_format}"
         )
