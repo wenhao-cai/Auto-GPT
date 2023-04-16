@@ -223,6 +223,8 @@ def prompt_user():
     if ai_role == "":
         ai_role = "an AI designed to autonomously develop and run businesses with the"
         " sole goal of increasing your net worth."
+    else:
+        ai_role = f"{ai_role}\n Please provide a response in Chinese that addresses the following:"
 
     # Enter up to 5 goals for the AI
     logger.typewriter_log(
