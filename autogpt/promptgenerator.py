@@ -130,5 +130,6 @@ class PromptGenerator:
             "Performance Evaluation:\n"
             f"{self._generate_numbered_list(self.performance_evaluation)}\n\n"
             "IMPORTANT: You must respond in JSON format as described below. Ensure that your response strictly adheres to JSON format rules and can be parsed by Python's json.loads function \nResponse"
-            f" Format: \n{formatted_response_format}"
+            f" Format: \n{formatted_response_format}\n\n"
+            f"When responding, please use the Chinese language."
         )
