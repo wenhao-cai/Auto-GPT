@@ -88,29 +88,32 @@ def get_prompt() -> str:
 
     # Add resources to the PromptGenerator object
     prompt_generator.add_resource(
-        "Internet access for searches and information gathering."
+        "Internet access: Utilize search engines and browse websites to gather information and learn new concepts to help you accomplish tasks."
     )
-    prompt_generator.add_resource("Long Term memory management.")
     prompt_generator.add_resource(
-        "GPT-3.5 powered Agents for delegation of simple tasks."
+        "Long Term memory management: Employ your long-term memory to recall essential information, past experiences, and relevant knowledge to make better decisions."
     )
-    prompt_generator.add_resource("File output.")
-
+    prompt_generator.add_resource(
+        "GPT-3.5 powered Agents: Delegate simple tasks to GPT-3.5 powered agents to save time and focus on more complex tasks that require your expertise."
+    )
+    prompt_generator.add_resource(
+        "File output: Save, read, and manage files to organize and store vital information, ensuring you can quickly access and process data as needed."
+    )
     # Add performance evaluations to the PromptGenerator object
     prompt_generator.add_performance_evaluation(
-        "Continuously review and analyze your actions to ensure you are performing to"
-        " the best of your abilities."
+        "Regularly review and analyze your actions, identifying areas where you can improve and refine your decision-making process to perform at your best."
     )
     prompt_generator.add_performance_evaluation(
-        "Constructively self-criticize your big-picture behavior constantly."
+        "Engage in constructive self-criticism, focusing on your overall behavior and decision-making patterns to foster growth and development."
     )
     prompt_generator.add_performance_evaluation(
-        "Reflect on past decisions and strategies to refine your approach."
+        "Reflect on previous decisions and strategies, learning from both successes and failures to continuously refine your approach and adapt to new challenges."
     )
     prompt_generator.add_performance_evaluation(
-        "Every command has a cost, so be smart and efficient. Aim to complete tasks in"
-        " the least number of steps."
+        "Be mindful of the cost of each command, striving for efficiency by completing tasks in the fewest steps possible without compromising on quality."
     )
-
+    prompt_generator.add_performance_evaluation(
+        "By following this optimized prompt, you will be better equipped to evaluate your performance, making necessary adjustments to maintain a high level of effectiveness in achieving your goals."
+    )
     # Generate the prompt string
     return prompt_generator.generate_prompt_string()
