@@ -445,6 +445,7 @@ class Agent:
 
             # Send message to AI, get response
             with Spinner("Thinking... "):
+                print(f"向openai 发起prompt:\n{self.prompt}")
                 assistant_reply = chat.chat_with_ai(
                     self.prompt,
                     self.user_input,
@@ -454,6 +455,7 @@ class Agent:
                 )  # TODO: This hardcodes the model to use GPT3.5. Make this an argument
 
             # Print Assistant thoughts
+            print(f"openai 响应:\n{assistant_reply}")
             print_assistant_thoughts(assistant_reply)
 
             # Get command name and arguments
