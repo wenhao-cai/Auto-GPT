@@ -426,7 +426,6 @@ class Agent:
             with Spinner("Thinking... "):
                 if cfg.debug_mode:
                     print(f"向openai 发起prompt:\n{self.prompt}\n{self.user_input}")
-                    
                 response = self.custom_api.talk(prompt=f"{self.prompt}\n\n User: {self.user_input}", model=self.model, parent_message_id=self.last_message_id, conversation_id=self.conversation_id)
                 assistant_reply = response["message"]["content"]["parts"][0]
                 self.last_message_id=response["message"]["id"]
@@ -520,6 +519,7 @@ class Agent:
 
 
             if result is not None:
+                print(result)
                 self.prompt(f"System: {result}")
             else:
                 self.prompt(f"System: Unable to execute command")
