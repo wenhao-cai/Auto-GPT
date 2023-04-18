@@ -14,7 +14,7 @@ from autogpt.json_parser import fix_and_parse_json
 from autogpt.logger import logger
 from autogpt.memory import get_memory, get_supported_memory_backends
 from autogpt.spinner import Spinner
-from CustomOpenAI import CustomOpenAI
+from autogpt.CustomOpenAI import CustomOpenAI
 
 cfg = Config()
 config = None
