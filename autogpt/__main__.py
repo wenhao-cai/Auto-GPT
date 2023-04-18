@@ -520,7 +520,7 @@ class Agent:
 
             if result is not None:
                 print(result)
-                self.prompt(f"System: {result}")
+                self.prompt(f"System: {str(result)}")
             else:
                 self.prompt(f"System: Unable to execute command")
 
