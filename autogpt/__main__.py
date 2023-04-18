@@ -368,29 +368,21 @@ def parse_arguments():
 
 def main():
     global ai_name, memory
-    # TODO: fill in llm values here
     check_openai_api_key()
     parse_arguments()
-    logger.set_level(logging.DEBUG if cfg.debug_mode else logging.INFO)
     ai_name = ""
     prompt = construct_prompt()
-    # print(prompt)
-    # Initialize variables
-    full_message_history = []
+
     next_action_count = 0
     # Make a constant:
     user_input = (
         "Determine which next command to use, and respond using the"
         " format specified above:"
     )
-    # Initialize memory and make sure it is empty.
-    # this is particularly important for indexing and referencing pinecone memory
     memory = get_memory(cfg, init=True)
-    print(f"Using memory of type: {memory.__class__.__name__}")
     agent = Agent(
         ai_name=ai_name,
         memory=memory,
-        full_message_history=full_message_history,
         next_action_count=next_action_count,
         prompt=prompt,
         user_input=user_input,
@@ -399,18 +391,6 @@ def main():
 
 
 class Agent:
-    """Agent class for interacting with Auto-GPT.
-
-    Attributes:
-        ai_name: The name of the agent.
-        memory: The memory object to use.
-        full_message_history: The full message history.
-        next_action_count: The number of actions to execute.
-        prompt: The prompt to use.
-        user_input: The user input.
-
-    """
-
     def __init__(
         self,
         ai_name,
@@ -422,7 +402,6 @@ class Agent:
     ):
         self.ai_name = ai_name
         self.memory = memory
-        self.full_message_history = full_message_history
         self.next_action_count = next_action_count
         self.prompt = prompt
         self.user_input = user_input
