@@ -14,6 +14,7 @@ from autogpt.json_parser import fix_and_parse_json
 from autogpt.logger import logger
 from autogpt.memory import get_memory, get_supported_memory_backends
 from autogpt.spinner import Spinner
+from CustomOpenAI import CustomOpenAI
 
 cfg = Config()
 config = None
@@ -367,7 +368,7 @@ def parse_arguments():
 
 
 def main():
-    global ai_name, memory
+    global ai_name
     check_openai_api_key()
     parse_arguments()
     ai_name = ""
@@ -379,10 +380,9 @@ def main():
         "Determine which next command to use, and respond using the"
         " format specified above:"
     )
-    memory = get_memory(cfg, init=True)
+        
     agent = Agent(
         ai_name=ai_name,
-        memory=memory,
         next_action_count=next_action_count,
         prompt=prompt,
         user_input=user_input,
@@ -394,51 +394,46 @@ class Agent:
     def __init__(
         self,
         ai_name,
-        memory,
-        full_message_history,
         next_action_count,
         prompt,
         user_input,
     ):
         self.ai_name = ai_name
-        self.memory = memory
         self.next_action_count = next_action_count
         self.prompt = prompt
         self.user_input = user_input
-
+        self.custom_api = CustomOpenAI(api_base_url="http://10.40.4.133:8008", token_name="caiwenhao2023")
+        self.model = "text-davinci-002-render-sha"
+        self.conversation_id = "31ea23ca-e173-451c-806a-cc10ea95fa21"
+        conversation = self.custom_api.get_conversation(self.conversation_id)
+        self.last_message_id = conversation["current_node"]
+    
     def start_interaction_loop(self):
         # Interaction Loop
         loop_count = 0
         command_name = None
         arguments = None
         while True:
-            # Discontinue if continuous limit is reached
             loop_count += 1
             if (
                 cfg.continuous_mode
                 and cfg.continuous_limit > 0
                 and loop_count > cfg.continuous_limit
             ):
-                logger.typewriter_log(
-                    "Continuous Limit Reached: ", Fore.YELLOW, f"{cfg.continuous_limit}"
-                )
                 break
 
             # Send message to AI, get response
             with Spinner("Thinking... "):
                 if cfg.debug_mode:
-                    print(f"向openai 发起prompt:\n{self.prompt}")
-                assistant_reply = chat.chat_with_ai(
-                    self.prompt,
-                    self.user_input,
-                    self.full_message_history,
-                    self.memory,
-                    cfg.fast_token_limit,
-                )  # TODO: This hardcodes the model to use GPT3.5. Make this an argument
+                    print(f"向openai 发起prompt:\n{self.prompt}\n{self.user_input}")
+                    
+                response = self.custom_api.talk(prompt=f"{self.prompt}\n{self.user_input}", model=self.model, parent_message_id=self.last_message_id, conversation_id=self.conversation_id)
+                assistant_reply = response["message"]["content"]["parts"][0]
+                self.last_message_id=response["message"]["id"]
 
             # Print Assistant thoughts
             if cfg.debug_mode:
-                print(f"openai 响应:\n{assistant_reply}")
+                print(f"openai 响应:\n{response}")
             print_assistant_thoughts(assistant_reply)
 
             # Get command name and arguments
@@ -456,12 +451,6 @@ class Agent:
                 # Get key press: Prompt the user to press enter to continue or escape
                 # to exit
                 self.user_input = ""
-                logger.typewriter_log(
-                    "NEXT ACTION: ",
-                    Fore.CYAN,
-                    f"COMMAND = {Fore.CYAN}{command_name}{Style.RESET_ALL}"
-                    f"  ARGUMENTS = {Fore.CYAN}{arguments}{Style.RESET_ALL}",
-                )
                 print(
                     "Enter 'y' to authorise command, 'y -N' to run N continuous"
                     " commands, 'n' to exit program, or enter feedback for"
@@ -529,28 +518,11 @@ class Agent:
                 if self.next_action_count > 0:
                     self.next_action_count -= 1
 
-            memory_to_add = (
-                f"Assistant Reply: {assistant_reply} "
-                f"\nResult: {result} "
-                f"\nHuman Feedback: {self.user_input} "
-            )
 
-            self.memory.add(memory_to_add)
-
-            # Check if there's a result from the command append it to the message
-            # history
             if result is not None:
-                self.full_message_history.append(
-                    chat.create_chat_message("system", result)
-                )
-                logger.typewriter_log("SYSTEM: ", Fore.YELLOW, result)
+                self.prompt(f"{result}")
             else:
-                self.full_message_history.append(
-                    chat.create_chat_message("system", "Unable to execute command")
-                )
-                logger.typewriter_log(
-                    "SYSTEM: ", Fore.YELLOW, "Unable to execute command"
-                )
+                self.prompt(f"Unable to execute command")
 
 
 if __name__ == "__main__":
