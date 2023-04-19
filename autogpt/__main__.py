@@ -110,7 +110,6 @@ def print_assistant_thoughts(assistant_reply):
             assistant_thoughts_criticism = assistant_thoughts.get("criticism")
             assistant_thoughts_speak = assistant_thoughts.get("speak")
 
-
         if assistant_thoughts_plan:
             logger.typewriter_log("PLAN:", Fore.YELLOW, "")
             # If it's a list, join it into a string
@@ -149,22 +148,13 @@ def print_assistant_thoughts(assistant_reply):
 def construct_prompt():
     """Construct the prompt for the AI to respond to"""
     config: AIConfig = AIConfig.load(cfg.ai_settings_file)
-    if cfg.skip_reprompt and config.ai_name:
-        logger.typewriter_log("Name :", Fore.GREEN, config.ai_name)
-        logger.typewriter_log("Role :", Fore.GREEN, config.ai_role)
-        logger.typewriter_log("Goals:", Fore.GREEN, f"{config.ai_goals}")
-    elif config.ai_name:
-        logger.typewriter_log(
-            "Welcome back! ",
-            Fore.GREEN,
-            f"Would you like me to return to being {config.ai_name}?",
-            speak_text=True,
-        )
+    if config.ai_name:
         should_continue = utils.clean_input(
             f"""Continue with the last settings?
 Name:  {config.ai_name}
 Role:  {config.ai_role}
 Goals: {config.ai_goals}
+ID: {config.ai_conversation_id}
 Continue (y/n): """
         )
         if should_continue.lower() == "n":
@@ -184,34 +174,11 @@ Continue (y/n): """
 def prompt_user():
     """Prompt the user for input"""
     ai_name = ""
-    # Construct the prompt
-    logger.typewriter_log(
-        "Welcome to Auto-GPT! ",
-        Fore.GREEN,
-        "Enter the name of your AI and its role below. Entering nothing will load"
-        " defaults.",
-        speak_text=True,
-    )
 
-    # Get AI Name from User
-    logger.typewriter_log(
-        "Name your AI: ", Fore.GREEN, "For example, 'Entrepreneur-GPT'"
-    )
     ai_name = utils.clean_input("AI Name: ")
     if ai_name == "":
         ai_name = "Entrepreneur-GPT"
 
-    logger.typewriter_log(
-        f"{ai_name} here!", Fore.LIGHTBLUE_EX, "I am at your service.", speak_text=True
-    )
-
-    # Get AI Role from User
-    logger.typewriter_log(
-        "Describe your AI's role: ",
-        Fore.GREEN,
-        "For example, 'an AI designed to autonomously develop and run businesses with"
-        " the sole goal of increasing your net worth.'",
-    )
     ai_role = utils.clean_input(f"{ai_name} is: ")
     if ai_role == "":
         ai_role = "an AI designed to autonomously develop and run businesses with the"
@@ -219,13 +186,6 @@ def prompt_user():
     else:
         ai_role = f"{ai_role}\n Please provide explanations in Chinese while addressing the following:"
 
-    # Enter up to 5 goals for the AI
-    logger.typewriter_log(
-        "Enter up to 5 goals for your AI: ",
-        Fore.GREEN,
-        "For example: \nIncrease net worth, Grow Twitter Account, Develop and manage"
-        " multiple businesses autonomously'",
-    )
     print("Enter nothing to load defaults, enter nothing when finished.", flush=True)
     ai_goals = []
     for i in range(5):
@@ -364,17 +324,19 @@ def main():
     check_openai_api_key()
     parse_arguments()
     ai_name = ""
+    ai_conversation_id = ""
+    
     prompt = construct_prompt()
-
     next_action_count = 0
     # Make a constant:
     user_input = (
         "Determine which next command to use, and respond using the"
         " format specified above:"
     )
-        
+
     agent = Agent(
         ai_name=ai_name,
+        conversation_id=ai_conversation_id,
         next_action_count=next_action_count,
         prompt=prompt,
         user_input=user_input,
@@ -386,6 +348,7 @@ class Agent:
     def __init__(
         self,
         ai_name,
+        conversation_id,
         next_action_count,
         prompt,
         user_input,
@@ -394,15 +357,20 @@ class Agent:
         self.next_action_count = next_action_count
         self.prompt = prompt
         self.user_input = user_input
-        self.custom_api = CustomOpenAI(api_base_url="http://10.40.4.133:8008", token_name="caiwenhao2023")
+        self.custom_api = CustomOpenAI(
+            api_base_url="http://10.40.4.133:8008", token_name="caiwenhao2023")
         self.model = "text-davinci-002-render-sha"
-        self.conversation_id = "31ea23ca-e173-451c-806a-cc10ea95fa21"
-        conversation = self.custom_api.get_conversation(self.conversation_id)
-        self.last_message_id = conversation["current_node"]
-        
+        # self.conversation_id = "31ea23ca-e173-451c-806a-cc10ea95fa21"
+        self.conversation_id = conversation_id
+        if self.conversation_id:
+            conversation = self.custom_api.get_conversation(self.conversation_id)
+            self.last_message_id = conversation["current_node"]
+        else:
+            self.last_message_id = ""
+
         prompt_generator = PromptGenerator()
         self.prompt2 = prompt_generator.generate_prompt_string2()
-    
+
     def start_interaction_loop(self):
         # Interaction Loop
         loop_count = 0
@@ -421,9 +389,15 @@ class Agent:
             with Spinner("Thinking... "):
                 if cfg.debug_mode:
                     print(f"向openai 发起prompt:\n{self.prompt}\n{self.user_input}")
-                response = self.custom_api.talk(prompt=f"{self.prompt}\n\n User: {self.user_input}", model=self.model, parent_message_id=self.last_message_id, conversation_id=self.conversation_id)
+                response = self.custom_api.talk(prompt=f"{self.prompt}\n\n User: {self.user_input}", model=self.model,
+                                                parent_message_id=self.last_message_id, conversation_id=self.conversation_id)
                 assistant_reply = response["message"]["content"]["parts"][0]
-                self.last_message_id=response["message"]["id"]
+                self.conversation_id = response["conversation_id"]
+                self.last_message_id = response["message"]["id"]
+                config: AIConfig = AIConfig.load(cfg.ai_settings_file)
+                config.ai_conversation_id = self.conversation_id
+                config.save()
+                
 
             # Print Assistant thoughts
             if cfg.debug_mode:
@@ -514,9 +488,9 @@ class Agent:
                     self.next_action_count -= 1
 
             if result is not None:
-                self.prompt=f"{str(result)}"
+                self.prompt = f"{str(result)}"
             else:
-                self.prompt=f"Unable to execute command"
+                self.prompt = f"Unable to execute command"
 
 
 if __name__ == "__main__":

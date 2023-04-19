@@ -16,7 +16,7 @@ class AIConfig:
     """
 
     def __init__(
-        self, ai_name: str = "", ai_role: str = "", ai_goals: list = []
+        self, ai_name: str = "", ai_role: str = "", ai_goals: list = [],ai_conversation_id: str = ""
     ) -> None:
         """
         Initialize a class instance
@@ -32,6 +32,7 @@ class AIConfig:
         self.ai_name = ai_name
         self.ai_role = ai_role
         self.ai_goals = ai_goals
+        self.ai_conversation_id = ai_conversation_id
 
     # Soon this will go in a folder where it remembers more stuff about the run(s)
     SAVE_FILE = os.path.join(os.path.dirname(__file__), "..", "ai_settings.yaml")
@@ -61,8 +62,9 @@ class AIConfig:
         ai_name = config_params.get("ai_name", "")
         ai_role = config_params.get("ai_role", "")
         ai_goals = config_params.get("ai_goals", [])
+        ai_conversation_id = config_params.get("ai_conversation_id", "")
         # type: Type[AIConfig]
-        return cls(ai_name, ai_role, ai_goals)
+        return cls(ai_name, ai_role, ai_goals,ai_conversation_id)
 
     def save(self, config_file: str = SAVE_FILE) -> None:
         """
@@ -80,6 +82,7 @@ class AIConfig:
             "ai_name": self.ai_name,
             "ai_role": self.ai_role,
             "ai_goals": self.ai_goals,
+            "ai_conversation_id": self.ai_conversation_id
         }
         with open(config_file, "w", encoding="utf-8") as file:
             yaml.dump(config, file, allow_unicode=True)
