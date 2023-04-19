@@ -399,7 +399,9 @@ class Agent:
         self.conversation_id = "31ea23ca-e173-451c-806a-cc10ea95fa21"
         conversation = self.custom_api.get_conversation(self.conversation_id)
         self.last_message_id = conversation["current_node"]
-        self.prompt2 = PromptGenerator.generate_prompt_string2()
+        
+        prompt_generator = PromptGenerator()
+        self.prompt2 = prompt_generator.generate_prompt_string2()
     
     def start_interaction_loop(self):
         # Interaction Loop
