@@ -458,14 +458,14 @@ class Agent:
                         Fore.MAGENTA + "Input:" + Style.RESET_ALL
                     )
                     if console_input.lower().rstrip() == "y":
-                        self.user_input = "GENERATE NEXT COMMAND JSON"
+                        self.user_input = "IMPORTANT: GENERATE NEXT COMMAND JSON"
                         break
                     elif console_input.lower().startswith("y -"):
                         try:
                             self.next_action_count = abs(
                                 int(console_input.split(" ")[1])
                             )
-                            self.user_input = "GENERATE NEXT COMMAND JSON"
+                            self.user_input = "IMPORTANT: GENERATE NEXT COMMAND JSON"
                         except ValueError:
                             print(
                                 "Invalid input format. Please enter 'y -n' where n"
@@ -481,7 +481,7 @@ class Agent:
                         command_name = "human_feedback"
                         break
 
-                if self.user_input == "GENERATE NEXT COMMAND JSON":
+                if self.user_input == "IMPORTANT: GENERATE NEXT COMMAND JSON":
                     logger.typewriter_log(
                         "-=-=-=-=-=-=-= COMMAND AUTHORISED BY USER -=-=-=-=-=-=-=",
                         Fore.MAGENTA,
@@ -514,11 +514,11 @@ class Agent:
                 if self.next_action_count > 0:
                     self.next_action_count -= 1
 
-
+            self.user_input = f"{self.user_input}\n\n{self.prompt2}"
             if result is not None:
-                self.prompt=f"System: {str(result)}\n\n{self.prompt2}"
+                self.prompt=f"{str(result)}"
             else:
-                self.prompt=f"System: Unable to execute command"
+                self.prompt=f"Unable to execute command"
 
 
 if __name__ == "__main__":
