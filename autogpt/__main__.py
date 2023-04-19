@@ -15,6 +15,7 @@ from autogpt.logger import logger
 from autogpt.memory import get_memory, get_supported_memory_backends
 from autogpt.spinner import Spinner
 from autogpt.CustomOpenAI import CustomOpenAI
+from autogpt.promptgenerator import PromptGenerator
 
 cfg = Config()
 config = None
@@ -398,6 +399,7 @@ class Agent:
         self.conversation_id = "31ea23ca-e173-451c-806a-cc10ea95fa21"
         conversation = self.custom_api.get_conversation(self.conversation_id)
         self.last_message_id = conversation["current_node"]
+        self.prompt2 = PromptGenerator.generate_prompt_string2()
     
     def start_interaction_loop(self):
         # Interaction Loop
@@ -417,7 +419,7 @@ class Agent:
             with Spinner("Thinking... "):
                 if cfg.debug_mode:
                     print(f"向openai 发起prompt:\n{self.prompt}\n{self.user_input}")
-                response = self.custom_api.talk(prompt=f"{self.prompt}\n\n User: {self.user_input}", model=self.model, parent_message_id=self.last_message_id, conversation_id=self.conversation_id)
+                response = self.custom_api.talk(prompt=f"{self.prompt}\n\n User: {self.user_input}\n\n{self.prompt2}", model=self.model, parent_message_id=self.last_message_id, conversation_id=self.conversation_id)
                 assistant_reply = response["message"]["content"]["parts"][0]
                 self.last_message_id=response["message"]["id"]
 

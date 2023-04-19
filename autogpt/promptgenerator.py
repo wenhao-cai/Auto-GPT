@@ -133,3 +133,16 @@ class PromptGenerator:
             f" Format: \n{formatted_response_format}\n\n"
             f"Remember to provide explanations in Chinese only. When using the Google Search command, choose the best language (English or Chinese) for the ‘input’ argument based on the specific requirements of the task."
         )
+    def generate_prompt_string2(self) -> str:
+        """
+        Generate a prompt string based on the constraints, commands, resources,
+            and performance evaluations.
+
+        Returns:
+            str: The generated prompt string.
+        """
+        formatted_response_format = json.dumps(self.response_format, indent=4)
+        return (
+            "IMPORTANT: You must respond in JSON format as described below. Ensure that your response strictly adheres to JSON format rules and can be parsed by Python's json.loads function \nResponse"
+            f" Format: \n{formatted_response_format}"
+        )    
