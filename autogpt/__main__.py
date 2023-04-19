@@ -402,6 +402,7 @@ class Agent:
         
         prompt_generator = PromptGenerator()
         self.prompt2 = prompt_generator.generate_prompt_string2()
+        print(f"prompt2命令: {self.prompt2}")
     
     def start_interaction_loop(self):
         # Interaction Loop
