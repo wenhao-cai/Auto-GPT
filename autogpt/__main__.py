@@ -109,12 +109,6 @@ def print_assistant_thoughts(assistant_reply):
             assistant_thoughts_criticism = assistant_thoughts.get("criticism")
             assistant_thoughts_speak = assistant_thoughts.get("speak")
 
-        logger.typewriter_log(
-            f"{ai_name.upper()} THOUGHTS:", Fore.YELLOW, f"{assistant_thoughts_text}"
-        )
-        logger.typewriter_log(
-            "REASONING:", Fore.YELLOW, f"{assistant_thoughts_reasoning}"
-        )
 
         if assistant_thoughts_plan:
             logger.typewriter_log("PLAN:", Fore.YELLOW, "")
@@ -130,9 +124,6 @@ def print_assistant_thoughts(assistant_reply):
                 line = line.lstrip("- ")
                 logger.typewriter_log("- ", Fore.GREEN, line.strip())
 
-        logger.typewriter_log(
-            "CRITICISM:", Fore.YELLOW, f"{assistant_thoughts_criticism}"
-        )
         # Speak the assistant's thoughts
         if cfg.speak_mode and assistant_thoughts_speak:
             speak.say_text(assistant_thoughts_speak)
@@ -440,6 +431,7 @@ class Agent:
                 command_name, arguments = cmd.get_command(
                     attempt_to_fix_json_by_finding_outermost_brackets(assistant_reply)
                 )
+                print(f"提取到的命令{command_name}, 提取到的参数 {arguments}")
                 if cfg.speak_mode:
                     speak.say_text(f"I want to execute {command_name}")
             except Exception as e:
